@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Forms;
+using MessageBox = System.Windows.MessageBox;
 
 namespace UtaFormatix
 {
@@ -9,14 +10,14 @@ namespace UtaFormatix
     /// </summary>
     public partial class MainWindow : Window
     {
-        string version = "ver1.51";
+        private const string Version = "ver1.51EX";
         Data maindata;
         Data exportingdata;
         bool Imported = false;
         public MainWindow()
         {
             InitializeComponent();
-            label.Content = version;
+            label.Content = Version;
         }
 
         private void ExportVsq4(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -24,7 +25,7 @@ namespace UtaFormatix
             if (Imported)
             {
                 exportingdata = new Data(maindata);
-                if(!transformlyrics(Data.UtaFormat.vsq4))
+                if(!transformlyrics(Data.UtaFormat.Vsq4))
                 {
                     return;
                 }
@@ -52,7 +53,7 @@ namespace UtaFormatix
             if (Imported)
             {
                 exportingdata = new Data(maindata);
-                if (!transformlyrics(Data.UtaFormat.ccs))
+                if (!transformlyrics(Data.UtaFormat.Ccs))
                 {
                     return;
                 }
@@ -80,23 +81,24 @@ namespace UtaFormatix
             if (Imported)
             {
                 exportingdata = new Data(maindata);
-                if (!transformlyrics(Data.UtaFormat.ust))
+                if (!transformlyrics(Data.UtaFormat.Ust))
                 {
                     return;
                 }
                 FolderBrowserDialog selectFolder = new FolderBrowserDialog();
                 selectFolder.Description = "Please choose a folder to export ust(s):";
-                selectFolder.SelectedPath = exportingdata.files[0].Replace(System.IO.Path.GetFileName(exportingdata.files[0]), "");
+                selectFolder.SelectedPath = exportingdata.Files[0].Replace(System.IO.Path.GetFileName(exportingdata.Files[0]), "");
                 if (selectFolder.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string foldpath = selectFolder.SelectedPath;
-                    exportingdata.ExportUst(foldpath);
+                    string omit = exportingdata.ExportUst(foldpath);
+                    MessageBox.Show(omit + "Ust is successfully exported.", "Export Ust");
                 }
                 exportingdata = null;
             }
             else
             {
-                System.Windows.MessageBox.Show("You have not imported a project.", "Export");
+                MessageBox.Show("You have not imported a project.", "Export");
             }
         }
 
@@ -202,7 +204,7 @@ namespace UtaFormatix
         bool transformlyrics(Data.UtaFormat toFormat)
         {
             ChangeLyrics changelyrics = new ChangeLyrics();
-            switch (maindata.lyric.AnalyzedType)
+            switch (maindata.Lyric.AnalyzedType)
             {
                 case Lyric.LyricType.None:
                     System.Windows.MessageBox.Show("The type of the lyrics is not detected, please select the correct type by yourself.", "Lyrics Transformation");
@@ -226,12 +228,12 @@ namespace UtaFormatix
             changelyrics.radioButton_to3.IsChecked = true;
             switch (toFormat)
             {
-                case Data.UtaFormat.vsq4:
+                case Data.UtaFormat.Vsq4:
                     changelyrics.radioButton_to2.Visibility = Visibility.Hidden;
                     changelyrics.radioButton_to4.Visibility = Visibility.Hidden;
                     changelyrics.radioButton_to3.Margin = changelyrics.radioButton_to2.Margin;
                     break;
-                case Data.UtaFormat.ccs:
+                case Data.UtaFormat.Ccs:
                     changelyrics.radioButton_to1.Visibility = Visibility.Hidden;
                     changelyrics.radioButton_to2.Visibility = Visibility.Hidden;
                     changelyrics.radioButton_to4.Visibility = Visibility.Hidden;
@@ -243,7 +245,7 @@ namespace UtaFormatix
             bool? dialogResult = changelyrics.ShowDialog();
             if (dialogResult == true)
             {
-                exportingdata.lyric.Transform(changelyrics.fromType, changelyrics.ToType);
+                exportingdata.Lyric.Transform(changelyrics.fromType, changelyrics.ToType);
                 return true;
             }
             else

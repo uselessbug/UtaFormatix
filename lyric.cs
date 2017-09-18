@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UtaFormatix.Model;
 using static UtaFormatix.Data;
 
 namespace UtaFormatix
@@ -18,11 +19,11 @@ namespace UtaFormatix
         void LyricTypeAnalyze()
         {
             LyricType project_lyrictype = LyricType.None;
-            foreach (track track in data.TrackList)
+            foreach (Track track in data.TrackList)
             {
-                List<note> NoteList = track.NoteList;
+                List<Note> NoteList = track.NoteList;
                 int[] typecount = new int[4] { 0, 0, 0, 0 };
-                foreach (note note in NoteList)
+                foreach (Note note in NoteList)
                 {
                     if (note.NoteLyric.Contains(" "))
                     {
@@ -168,9 +169,9 @@ namespace UtaFormatix
 
         void CleanLyric(LyricType type)
         {
-            foreach (track track in data.TrackList)
+            foreach (Track track in data.TrackList)
             {
-                List<note> NoteList = track.NoteList;
+                List<Note> NoteList = track.NoteList;
                 switch (type)
                 {
                     case LyricType.Romaji_Tandoku:
@@ -341,9 +342,9 @@ namespace UtaFormatix
         }
         void TransLyricsRomaji2Kana(TransDirection mode)
         {
-            foreach (track track in data.TrackList)
+            foreach (Track track in data.TrackList)
             {
-                List<note> NoteList = track.NoteList;
+                List<Note> NoteList = track.NoteList;
                 switch (mode)
                 {
                     case TransDirection.None:  //Do nothing 
@@ -383,9 +384,9 @@ namespace UtaFormatix
         }
         void TransLyricsTan2Ren(TransDirection mode)
         {
-            foreach (track track in data.TrackList)
+            foreach (Track track in data.TrackList)
             {
-                List<note> NoteList = track.NoteList;
+                List<Note> NoteList = track.NoteList;
                 switch (mode)
                 {
                     case TransDirection.None:  //Do nothing 

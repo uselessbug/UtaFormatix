@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UtaFormatix</RootNamespace>
     <AssemblyName>UtaFormatix</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,9 +34,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>H 256.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\H 256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -61,7 +63,12 @@
     <Compile Include="ChangeLyrics.xaml.cs">
       <DependentUpon>ChangeLyrics.xaml</DependentUpon>
     </Compile>
-    <Compile Include="lyric.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Lyric.cs" />
+    <Compile Include="Model\Track.cs" />
+    <Compile Include="Model\Note.cs" />
+    <Compile Include="Model\Tempo.cs" />
+    <Compile Include="Model\TimeSig.cs" />
     <Page Include="ChangeLyrics.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -74,13 +81,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="data.cs" />
+    <Compile Include="Data.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Pit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -106,26 +114,26 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="cevio.png" />
-    <Resource Include="H 256.ico" />
-    <Resource Include="vocaloid.png" />
+    <Resource Include="Resources\cevio.png" />
+    <Resource Include="Resources\H 256.ico" />
+    <Resource Include="Resources\vocaloid.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="import.png" />
-    <Resource Include="import2.png" />
-    <Resource Include="utau.png" />
+    <Resource Include="Resources\import.png" />
+    <Resource Include="Resources\import2.png" />
+    <Resource Include="Resources\utau.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="export.png" />
+    <Resource Include="Resources\export.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="title.png" />
+    <Resource Include="Resources\title.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="import3.png" />
+    <Resource Include="Resources\import3.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="white_cover.png" />
+    <Resource Include="Resources\white_cover.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
