@@ -638,9 +638,9 @@ namespace UtaFormatix
                 for (int tracknum = 0; tracknum < TrackList.Count; tracknum++)
                 {
                     XElement newTrack = new XElement(emptyTrack);
-                    newTrack.FirstChild("tNo").Value = (tracknum + 1).ToString();
-                    emptyTrack.FirstChild("name").Value = TrackList[tracknum].TrackName;
-                    XElement part = emptyTrack.FirstChild("vsPart");
+                    newTrack.FirstChild("tNo").Value = (tracknum).ToString();
+                    newTrack.FirstChild("name").Value = TrackList[tracknum].TrackName;
+                    XElement part = newTrack.FirstChild("vsPart");
                     int pos = 0;
                     int mes = 0;
                     int nume = 4;
@@ -696,7 +696,7 @@ namespace UtaFormatix
                     emptyTrack.AddAfterSelf(newTrack);
                     emptyTrack = newTrack;
                     var newUnit = new XElement(emptyUnit);
-                    newUnit.FirstChild("tNo").Value = (tracknum + 1).ToString();
+                    newUnit.FirstChild("tNo").Value = (tracknum).ToString();
                     emptyUnit.AddAfterSelf(newUnit);
                     emptyUnit = newUnit;
                 }
