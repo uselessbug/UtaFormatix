@@ -8,6 +8,16 @@ using UtaFormatix.Model;
 
 namespace UtaFormatix
 {
+    public enum UtaFormat
+    {
+        Vsq2, //VOCALOID2
+        Vsq3, //VOCALOID3
+        Vsq4, //VOCALOID4
+        Ust, //UTAU
+        Ccs, //CeVIO
+        None
+    }
+
     public class Data
     {
         private const string Vsq3NameSpace = "http://www.yamaha.co.jp/vocaloid/schema/vsq3/";
@@ -75,7 +85,6 @@ namespace UtaFormatix
             //}
             else
             {
-                //MessageBox.Show("The format of this file is not supported.", "Import");
                 return false;
             }
 
@@ -95,18 +104,11 @@ namespace UtaFormatix
             return false;
         }
 
-        private void Test()
-        {
-            ImportVsq3(new List<string>()
-            {
-                @"D:\Documents\Visual Studio 2017\Projects\UtaFormatix\Tests\Step on your heart(full).vsqx"
-            });
-        }
-
         public bool ImportVsq3(List<string> filenames)
         {
-            if (filenames.Count != 1)
+            if (filenames.Count <= 0)
             {
+                //Why not just let the first one go?
                 //MessageBox.Show("Cannot Import more than one vsqx.", "Import");
                 return false;
             }
@@ -145,9 +147,9 @@ namespace UtaFormatix
                 BpmTimes100 = Convert.ToInt32(tempoNode.FirstChild("bpm").Value)
             };
             TempoList.Add(newtempo);
-            
+
             //Vocal Tracks
-            foreach (var vstrack in vsq.Descendants(nameSpace+"vsTrack"))
+            foreach (var vstrack in vsq.Descendants(nameSpace + "vsTrack"))
             {
                 int noteNum = 0;
                 Track newTrack = new Track
@@ -188,22 +190,18 @@ namespace UtaFormatix
                 Lyric = new Lyric(this, true);
                 return true;
             }
-            else
-            {
-                //MessageBox.Show("The Vsqx is invalid or empty.", "Import");
-                return false;
-            }
+            return false;
         }
         public bool ImportVsq4(List<string> filenames)
         {
-            if (filenames.Count != 1)
+            if (filenames.Count <= 0)
             {
                 //MessageBox.Show("Cannot Import more than one vsqx.", "Import");
                 return false;
             }
             XDocument vsq = XDocument.Load(filenames[0]);
             var nameSpace = (vsq.FirstNode as XElement)?.GetDefaultNamespace() ?? Vsq4NameSpace;
-            
+
             //Set up tracklist
             ProjectName = Path.GetFileNameWithoutExtension(filenames[0]);
             TrackList = new List<Track>();
@@ -287,11 +285,8 @@ namespace UtaFormatix
                 Lyric = new Lyric(this, true);
                 return true;
             }
-            else
-            {
-                //MessageBox.Show("The Vsqx is invalid or empty.", "Import");
-                return false;
-            }
+            //MessageBox.Show("The Vsqx is invalid or empty.", "Import");
+            return false;
         }
         public bool ImportUst(List<string> filenames)
         {
@@ -329,7 +324,7 @@ namespace UtaFormatix
                         }
                         if (readBuf.Contains("Tempo="))
                         {
-                            Tempo firstTempo = new Tempo {PosTick = 0};
+                            Tempo firstTempo = new Tempo { PosTick = 0 };
                             if (double.TryParse(readBuf.Remove(0, 6), out var bpm))
                             {
                                 firstTempo.BpmTimes100 = (int)(bpm * 100);
@@ -376,7 +371,7 @@ namespace UtaFormatix
                             }
                             if (readBuf.Contains("Lyric="))
                             {
-                                if (readBuf.Substring(6, readBuf.Length - 6) != "R"&& readBuf.Substring(6, readBuf.Length - 6) != "r" && newNote.GetNoteLength() != 0)
+                                if (readBuf.Substring(6, readBuf.Length - 6) != "R" && readBuf.Substring(6, readBuf.Length - 6) != "r" && newNote.GetNoteLength() != 0)
                                 {
                                     noteIsValid = true;
                                     ustValid = true;
@@ -435,7 +430,7 @@ namespace UtaFormatix
         }
         public bool ImportCcs(List<string> filenames)
         {
-            if (filenames.Count != 1)
+            if (filenames.Count <= 0)
             {
                 //MessageBox.Show("Cannot Import more than one ccs.", "Import");
                 return false;
@@ -466,7 +461,7 @@ namespace UtaFormatix
                             Tempo newTempo = new Tempo
                             {
                                 PosTick = int.Parse(sound.Attribute("Clock").Value) / 2,
-                                BpmTimes100 = (int) double.Parse(sound.Attribute("Tempo").Value) * 100
+                                BpmTimes100 = (int)double.Parse(sound.Attribute("Tempo").Value) * 100
                             };
                             TempoList.Add(newTempo);
                         }
@@ -497,8 +492,8 @@ namespace UtaFormatix
                     {
                         TrackNum = trackNum,
                         TrackName = (from g in groups.Descendants()
-                            where g.Attribute("Id").Value == unit.Attribute("Group").Value
-                            select g.Attribute("Name").Value).FirstOrDefault(),
+                                     where g.Attribute("Id").Value == unit.Attribute("Group").Value
+                                     select g.Attribute("Name").Value).FirstOrDefault(),
                         NoteList = new List<Note>()
                     };
 
@@ -527,7 +522,7 @@ namespace UtaFormatix
                 }
             }
 
-            if(!ccsValid)
+            if (!ccsValid)
             {
                 //MessageBox.Show("The Ccs is invalid or empty.", "Import");
                 return false;
@@ -593,35 +588,36 @@ namespace UtaFormatix
                     pos = thisnote.NoteTimeOff;
                 }
                 ustcontents += "[#TRACKEND]";
-                File.WriteAllText(filepath + "\\" + ProjectName + "_" + tracknum.ToString() + "_" + TrackList[tracknum].TrackName.Replace("\\","").Replace("/","").Replace(".","") + ".ust", ustcontents, Encoding.GetEncoding("Shift-JIS"));
+                File.WriteAllText(filepath + "\\" + ProjectName + "_" + tracknum.ToString() + "_" + TrackList[tracknum].TrackName.Replace("\\", "").Replace("/", "").Replace(".", "") + ".ust", ustcontents, Encoding.GetEncoding("Shift-JIS"));
             }
             return omitList;
         }
         public void ExportVsq4(string filename)
         {
-            XmlDocument vsq4 = new XmlDocument();
+            XNamespace nameSpace = Vsq4NameSpace;
             string template = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<vsq4 xmlns=\"http://www.yamaha.co.jp/vocaloid/schema/vsq4/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.yamaha.co.jp/vocaloid/schema/vsq4/ vsq4.xsd\">\r\n  <vender><![CDATA[Yamaha corporation]]></vender>\r\n  <version><![CDATA[4.0.0.3]]></version>\r\n  <vVoiceTable>\r\n    <vVoice>\r\n      <bs>0</bs>\r\n      <pc>0</pc>\r\n      <id><![CDATA[BCXDC6CZLSZHZCB4]]></id>\r\n      <name><![CDATA[VY2V3]]></name>\r\n      <vPrm>\r\n        <bre>0</bre>\r\n        <bri>0</bri>\r\n        <cle>0</cle>\r\n        <gen>0</gen>\r\n        <ope>0</ope>\r\n      </vPrm>\r\n    </vVoice>\r\n  </vVoiceTable>\r\n  <mixer>\r\n    <masterUnit>\r\n      <oDev>0</oDev>\r\n      <rLvl>0</rLvl>\r\n      <vol>0</vol>\r\n    </masterUnit>\r\n    <vsUnit>\r\n      <tNo>0</tNo>\r\n      <iGin>0</iGin>\r\n      <sLvl>-898</sLvl>\r\n      <sEnable>0</sEnable>\r\n      <m>0</m>\r\n      <s>0</s>\r\n      <pan>64</pan>\r\n      <vol>0</vol>\r\n    </vsUnit>\r\n    <monoUnit>\r\n      <iGin>0</iGin>\r\n      <sLvl>-898</sLvl>\r\n      <sEnable>0</sEnable>\r\n      <m>0</m>\r\n      <s>0</s>\r\n      <pan>64</pan>\r\n      <vol>0</vol>\r\n    </monoUnit>\r\n    <stUnit>\r\n      <iGin>0</iGin>\r\n      <m>0</m>\r\n      <s>0</s>\r\n      <vol>-129</vol>\r\n    </stUnit>\r\n  </mixer>\r\n  <masterTrack>\r\n    <seqName><![CDATA[Untitled0]]></seqName>\r\n    <comment><![CDATA[New VSQ File]]></comment>\r\n    <resolution>480</resolution>\r\n    <preMeasure>4</preMeasure>\r\n    <timeSig>\r\n      <m>0</m>\r\n      <nu>4</nu>\r\n      <de>4</de>\r\n    </timeSig>\r\n    <tempo>\r\n      <t>0</t>\r\n      <v>12000</v>\r\n    </tempo>\r\n  </masterTrack>\r\n  <vsTrack>\r\n    <tNo>0</tNo>\r\n    <name><![CDATA[Track]]></name>\r\n    <comment><![CDATA[Track]]></comment>\r\n    <vsPart>\r\n      <t>7680</t>\r\n      <playTime>61440</playTime>\r\n      <name><![CDATA[NewPart]]></name>\r\n      <comment><![CDATA[New Musical Part]]></comment>\r\n      <sPlug>\r\n        <id><![CDATA[ACA9C502-A04B-42b5-B2EB-5CEA36D16FCE]]></id>\r\n        <name><![CDATA[VOCALOID2 Compatible Style]]></name>\r\n        <version><![CDATA[3.0.0.1]]></version>\r\n      </sPlug>\r\n      <pStyle>\r\n        <v id=\"accent\">50</v>\r\n        <v id=\"bendDep\">8</v>\r\n        <v id=\"bendLen\">0</v>\r\n        <v id=\"decay\">50</v>\r\n        <v id=\"fallPort\">0</v>\r\n        <v id=\"opening\">127</v>\r\n        <v id=\"risePort\">0</v>\r\n      </pStyle>\r\n      <singer>\r\n        <t>0</t>\r\n        <bs>0</bs>\r\n        <pc>0</pc>\r\n      </singer>\r\n      <plane>0</plane>\r\n    </vsPart>\r\n  </vsTrack>\r\n  <monoTrack>\r\n  </monoTrack>\r\n  <stTrack>\r\n  </stTrack>\r\n  <aux>\r\n    <id><![CDATA[AUX_VST_HOST_CHUNK_INFO]]></id>\r\n    <content><![CDATA[VlNDSwAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></content>\r\n  </aux>\r\n</vsq4>";
-            vsq4.LoadXml(template);
-            XmlElement root = (XmlElement)(vsq4.FirstChild.NextSibling);
-            XmlElement mixer = (XmlElement)(root.GetElementsByTagName("mixer"))[0];
-            XmlElement masterTrack = (XmlElement)(root.GetElementsByTagName("masterTrack"))[0];
-            XmlElement emptyTrack = (XmlElement)(root.GetElementsByTagName("vsTrack"))[0];
-            XmlElement emptyUnit = (XmlElement)(mixer.GetElementsByTagName("vsUnit"))[0];
-            XmlElement preMeasure = (XmlElement)(masterTrack.GetElementsByTagName("preMeasure"))[0];
-            preMeasure.InnerText = PreMeasure.ToString();
-            XmlElement firstTempo = (XmlElement)(masterTrack.GetElementsByTagName("tempo"))[0];
-            firstTempo.GetElementsByTagName("v")[0].FirstChild.Value = TempoList[0].BpmTimes100.ToString();
-            XmlElement firsttimeSig = (XmlElement)(masterTrack.GetElementsByTagName("timeSig"))[0];
-            firsttimeSig.GetElementsByTagName("nu")[0].FirstChild.Value = TimeSigList[0].Nume.ToString();
-            firsttimeSig.GetElementsByTagName("de")[0].FirstChild.Value = TimeSigList[0].Denomi.ToString();
+            XDocument vsq = XDocument.Parse(template);
+            var mixer = vsq.Descendants(nameSpace + "mixer").FirstOrDefault();
+            var masterTrack = vsq.Descendants(nameSpace + "masterTrack").FirstOrDefault();
+            var emptyTrack = vsq.Descendants(nameSpace + "vsTrack").FirstOrDefault();
+            var emptyUnit = vsq.Descendants(nameSpace + "vsUnit").FirstOrDefault();
+            var toBeRemovedTrack = emptyTrack;
+            var toBeRemovedUnit = emptyUnit;
+            var preMeasure = masterTrack.FirstChild("preMeasure");
+            preMeasure.Value = PreMeasure.ToString();
+            var firstTempo = masterTrack.FirstChild("tempo");
+            firstTempo.FirstChild("v").Value = TempoList[0].BpmTimes100.ToString();
+            var firsttimeSig = masterTrack.FirstChild("timeSig");
+            firsttimeSig.FirstChild("nu").Value = TimeSigList[0].Nume.ToString();
+            firsttimeSig.FirstChild("de").Value = TimeSigList[0].Denomi.ToString();
             if (TempoList.Count > 1)
             {
                 for (int i = 1; i < TempoList.Count; i++)
                 {
-                    XmlElement newTempo = (XmlElement)firstTempo.Clone();
-                    newTempo.GetElementsByTagName("t")[0].FirstChild.Value = TempoList[i].PosTick.ToString();
-                    newTempo.GetElementsByTagName("v")[0].FirstChild.Value = TempoList[i].BpmTimes100.ToString();
-                    masterTrack.InsertAfter(newTempo, firstTempo);
+                    XElement newTempo = new XElement(firstTempo);
+                    newTempo.FirstChild("t").Value = TempoList[i].PosTick.ToString();
+                    newTempo.FirstChild("v").Value = TempoList[i].BpmTimes100.ToString();
+                    firstTempo.AddAfterSelf(newTempo);
                     firstTempo = newTempo;
                 }
             }
@@ -629,11 +625,11 @@ namespace UtaFormatix
             {
                 for (int i = 1; i < TimeSigList.Count; i++)
                 {
-                    XmlElement newtimeSig = (XmlElement)firsttimeSig.Clone();
-                    newtimeSig.GetElementsByTagName("m")[0].FirstChild.Value = TimeSigList[i].PosMes.ToString();
-                    newtimeSig.GetElementsByTagName("nu")[0].FirstChild.Value = TimeSigList[i].Nume.ToString();
-                    newtimeSig.GetElementsByTagName("de")[0].FirstChild.Value = TimeSigList[i].Denomi.ToString();
-                    masterTrack.InsertAfter(newtimeSig, firsttimeSig);
+                    XElement newtimeSig = new XElement(firsttimeSig);
+                    newtimeSig.FirstChild("m").Value = TimeSigList[i].PosMes.ToString();
+                    newtimeSig.FirstChild("nu").Value = TimeSigList[i].Nume.ToString();
+                    newtimeSig.FirstChild("de").Value = TimeSigList[i].Denomi.ToString();
+                    firsttimeSig.AddAfterSelf(newtimeSig);
                     firsttimeSig = newtimeSig;
                 }
             }
@@ -641,10 +637,10 @@ namespace UtaFormatix
             {
                 for (int tracknum = 0; tracknum < TrackList.Count; tracknum++)
                 {
-                    XmlElement newTrack = (XmlElement)emptyTrack.Clone();
-                    newTrack.GetElementsByTagName("tNo")[0].FirstChild.Value = (tracknum + 1).ToString();
-                    emptyTrack.GetElementsByTagName("name")[0].FirstChild.Value = TrackList[tracknum].TrackName;
-                    XmlElement Part = (XmlElement)emptyTrack.GetElementsByTagName("vsPart")[0];
+                    XElement newTrack = new XElement(emptyTrack);
+                    newTrack.FirstChild("tNo").Value = (tracknum + 1).ToString();
+                    emptyTrack.FirstChild("name").Value = TrackList[tracknum].TrackName;
+                    XElement part = emptyTrack.FirstChild("vsPart");
                     int pos = 0;
                     int mes = 0;
                     int nume = 4;
@@ -655,206 +651,166 @@ namespace UtaFormatix
                         {
                             break;
                         }
-                        else
-                        {
-                            pos += (timesig.PosMes - mes) * nume * 4 * 480 / denomi;
-                            mes = timesig.PosMes;
-                            nume = timesig.Nume;
-                            denomi = timesig.Denomi;
-                        }
+                        pos += (timesig.PosMes - mes) * nume * 4 * 480 / denomi;
+                        mes = timesig.PosMes;
+                        nume = timesig.Nume;
+                        denomi = timesig.Denomi;
                     }
                     pos += (PreMeasure - mes) * nume * 4 * 480 / denomi;
-                    Part.GetElementsByTagName("t")[0].InnerText = pos.ToString();
-                    int PartStartTime = pos;
+                    part.FirstChild("t").Value = pos.ToString();
+                    int partStartTime = pos;
                     int time = 0;
                     Track thisTrack = TrackList[tracknum];
-                    XmlElement lastnote = (XmlElement)Part.GetElementsByTagName("singer")[0];
-                    for (int notenum = 0; notenum < thisTrack.NoteList.Count; notenum++)
+                    var lastNote = part.FirstChild("singer");
+
+                    var defaultStyle = new XElement("nStyle",
+                        new XElement("v", 50, new XAttribute("id", "accent")),
+                        new XElement("v", 0, new XAttribute("id", "bendDep")),
+                        new XElement("v", 0, new XAttribute("id", "bendLen")),
+                        new XElement("v", 50, new XAttribute("id", "decay")),
+                        new XElement("v", 0, new XAttribute("id", "fallPort")),
+                        new XElement("v", 127, new XAttribute("id", "opening")),
+                        new XElement("v", 0, new XAttribute("id", "risePort")),
+                        new XElement("v", 0, new XAttribute("id", "vibLen")),
+                        new XElement("v", 0, new XAttribute("id", "vibType"))
+                        );
+
+                    foreach (Note currentNote in thisTrack.NoteList)
                     {
-                        Note thisnote = thisTrack.NoteList[notenum];
-                        XmlElement note = vsq4.CreateElement("note", vsq4.DocumentElement.NamespaceURI);
-                        XmlElement t = vsq4.CreateElement("t", vsq4.DocumentElement.NamespaceURI);
-                        t.InnerText = (thisnote.NoteTimeOn - PartStartTime).ToString();
-                        note.AppendChild(t);
-                        XmlElement dur = vsq4.CreateElement("dur", vsq4.DocumentElement.NamespaceURI);
-                        dur.InnerText = thisnote.GetNoteLength().ToString();
-                        note.AppendChild(dur);
-                        XmlElement n = vsq4.CreateElement("n", vsq4.DocumentElement.NamespaceURI);
-                        n.InnerText = thisnote.NoteKey.ToString();
-                        note.AppendChild(n);
-                        XmlElement v = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v.InnerText = "64";
-                        note.AppendChild(v);
-                        XmlElement y = vsq4.CreateElement("y", vsq4.DocumentElement.NamespaceURI);
-                        XmlCDataSection y_cdata = vsq4.CreateCDataSection(thisnote.NoteLyric);
-                        y.AppendChild(y_cdata);
-                        note.AppendChild(y);
-                        XmlElement p = vsq4.CreateElement("p", vsq4.DocumentElement.NamespaceURI);
-                        XmlCDataSection p_cdata = vsq4.CreateCDataSection("a");
-                        p.AppendChild(p_cdata);
-                        note.AppendChild(p);
-                        XmlElement nStyle = vsq4.CreateElement("nStyle", vsq4.DocumentElement.NamespaceURI);
-                        XmlElement v1 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v1.SetAttribute("id", "accent");
-                        v1.InnerText = "50";
-                        nStyle.AppendChild(v1);
-                        XmlElement v2 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v2.SetAttribute("id", "bendDep");
-                        v2.InnerText = "0";
-                        nStyle.AppendChild(v2);
-                        XmlElement v3 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v3.SetAttribute("id", "bendLen");
-                        v3.InnerText = "0";
-                        nStyle.AppendChild(v3);
-                        XmlElement v4 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v4.SetAttribute("id", "decay");
-                        v4.InnerText = "50";
-                        nStyle.AppendChild(v4);
-                        XmlElement v5 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v5.SetAttribute("id", "fallPort");
-                        v5.InnerText = "0";
-                        nStyle.AppendChild(v5);
-                        XmlElement v6 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v6.SetAttribute("id", "opening");
-                        v6.InnerText = "127";
-                        nStyle.AppendChild(v6);
-                        XmlElement v7 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v7.SetAttribute("id", "risePort");
-                        v7.InnerText = "0";
-                        nStyle.AppendChild(v7);
-                        XmlElement v8 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v8.SetAttribute("id", "vibLen");
-                        v8.InnerText = "0";
-                        nStyle.AppendChild(v8);
-                        XmlElement v9 = vsq4.CreateElement("v", vsq4.DocumentElement.NamespaceURI);
-                        v9.SetAttribute("id", "vibType");
-                        v9.InnerText = "0";
-                        nStyle.AppendChild(v9);
-                        note.AppendChild(nStyle);
-                        Part.InsertAfter(note, lastnote);
-                        lastnote = note;
-                        time = thisnote.NoteTimeOff;
+                        var noteNode = new XElement("note",
+                            new XElement("t", (currentNote.NoteTimeOn - partStartTime).ToString()),
+                            new XElement("dur", currentNote.GetNoteLength().ToString()),
+                            new XElement("n", currentNote.NoteKey.ToString()),
+                            new XElement("v", 64),
+                            new XElement("y", new XCData(currentNote.NoteLyric)),
+                            new XElement("p", new XCData("a")),
+                            new XElement(defaultStyle)
+                        );
+                        lastNote.AddAfterSelf(noteNode);
+                        lastNote = noteNode;
+                        time = currentNote.NoteTimeOff;
                     }
-                    Part.GetElementsByTagName("playTime")[0].InnerText = time.ToString();
-                    root.InsertAfter(newTrack, emptyTrack);
+
+                    part.FirstChild("playTime").Value = time.ToString();
+                    emptyTrack.AddAfterSelf(newTrack);
                     emptyTrack = newTrack;
-                    XmlElement newUnit = (XmlElement)emptyUnit.Clone();
-                    newUnit.GetElementsByTagName("tNo")[0].FirstChild.Value = (tracknum + 1).ToString();
-                    mixer.InsertAfter(newUnit, emptyUnit);
+                    var newUnit = new XElement(emptyUnit);
+                    newUnit.FirstChild("tNo").Value = (tracknum + 1).ToString();
+                    emptyUnit.AddAfterSelf(newUnit);
                     emptyUnit = newUnit;
                 }
-                root.RemoveChild(emptyTrack);
-                mixer.RemoveChild(emptyUnit);
+                toBeRemovedTrack?.Remove();
+                toBeRemovedUnit?.Remove();
             }
-            vsq4.Save(filename);
-            //MessageBox.Show("Vsqx is successfully exported." + Environment.NewLine + "If it only pronounces \"a\", please select all notes and run \"Lyrics\"→\"Convert Phonemes\". ", "Export Vsqx");
+            vsq.Save(filename);
         }
         public void ExportCcs(string filename)
         {
-            XmlDocument ccs = new XmlDocument();
             string template = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Scenario Code=\"7251BC4B6168E7B2992FA620BD3E1E77\">\r\n  <Generation>\r\n    <Author Version=\"3.2.21.2\" />\r\n    <TTS Version=\"3.1.0\">\r\n      <Dictionary Version=\"1.4.0\" />\r\n      <SoundSources />\r\n    </TTS>\r\n    <SVSS Version=\"3.0.5\">\r\n      <Dictionary Version=\"1.0.0\" />\r\n      <SoundSources>\r\n        <SoundSource Version=\"1.0.0\" Id=\"XSV-JPF-W\" Name=\"緑咲 香澄\" />\r\n        <SoundSource Version=\"1.0.0\" Id=\"XSV-JPM-P\" Name=\"赤咲 湊\" />\r\n      </SoundSources>\r\n    </SVSS>\r\n  </Generation>\r\n  <Sequence Id=\"\">\r\n    <Scene Id=\"\">\r\n      <Units>\r\n        <Unit Version=\"1.0\" Id=\"\" Category=\"SingerSong\" Group=\"7de5f694-4b60-493d-b6b0-16f6b56deb1f\" StartTime=\"00:00:00\" Duration=\"00:00:02\" CastId=\"XSV-JPM-P\" Language=\"Japanese\">\r\n          <Song Version=\"1.02\">\r\n            <Tempo>\r\n              <Sound Clock=\"0\" Tempo=\"120\" />\r\n            </Tempo>\r\n            <Beat>\r\n              <Time Clock=\"0\" Beats=\"4\" BeatType=\"4\" />\r\n            </Beat>\r\n            <Score>\r\n              <Key Clock=\"0\" Fifths=\"0\" Mode=\"0\" />\r\n            </Score>\r\n          </Song>\r\n        </Unit>\r\n      </Units>\r\n      <Groups>\r\n        <Group Version=\"1.0\" Id=\"7de5f694-4b60-493d-b6b0-16f6b56deb1f\" Category=\"SingerSong\" Name=\"ソング 1\" Color=\"#FFAF1F14\" Volume=\"0\" Pan=\"0\" IsSolo=\"false\" IsMuted=\"false\" CastId=\"XSV-JPM-P\" Language=\"Japanese\" />\r\n      </Groups>\r\n      <SoundSetting Rhythm=\"4/4\" Tempo=\"78\" />\r\n    </Scene>\r\n  </Sequence>\r\n</Scenario>";
-            ccs.LoadXml(template);
-            XmlElement Scenario = (XmlElement)ccs.FirstChild.NextSibling;
-            XmlElement Scene = (XmlElement)((XmlElement)Scenario.GetElementsByTagName("Sequence")[0]).GetElementsByTagName("Scene")[0];
-            XmlElement Units = (XmlElement)Scene.GetElementsByTagName("Units")[0];
-            XmlElement EmptyUnit = (XmlElement)Units.GetElementsByTagName("Unit")[0];
-            XmlElement Groups = (XmlElement)Scene.GetElementsByTagName("Groups")[0];
-            XmlElement EmptyGroup = (XmlElement)Groups.GetElementsByTagName("Group")[0];
-            XmlElement AllTempo = (XmlElement)((XmlElement)(EmptyUnit.GetElementsByTagName("Song")[0])).GetElementsByTagName("Tempo")[0];
-            XmlElement firstTempo = (XmlElement)AllTempo.GetElementsByTagName("Sound")[0];
-            firstTempo.SetAttribute("Tempo", (0.01 * TempoList[0].BpmTimes100).ToString());
-            for (int i = 1; i < TempoList.Count; i++)
+            XDocument ccs = XDocument.Parse(template);
+            var scenario = ccs.Descendants("Scenario").FirstOrDefault();
+            var scene = scenario.FirstChild("Sequence").FirstChild("Scene");
+            var units = scene.FirstChild("Units");
+            var emptyUnit = units.FirstChild("Unit");
+            var groups = scene.FirstChild("Groups");
+            var emptyGroup = groups.FirstChild("Group");
+            var allTempo = emptyUnit.FirstChild("Song").FirstChild("Tempo");
+            var firstTempo = allTempo.FirstChild("Sound");
+            var toBeRemovedUnit = emptyUnit;
+            var toBeRemovedGroup = emptyGroup;
+            bool first = true;
+            //for (int i = 1; i < TempoList.Count; i++) //not elegant
+            foreach (var tempo in TempoList)
             {
-                XmlElement newTempo = (XmlElement)firstTempo.Clone();
-                newTempo.SetAttribute("Tempo", (0.01 * TempoList[i].BpmTimes100).ToString());
-                newTempo.SetAttribute("Clock", (TempoList[i].PosTick * 2).ToString());
-                AllTempo.InsertAfter(newTempo, firstTempo);
+                XElement newTempo = new XElement(firstTempo);
+                newTempo.Attribute("Tempo").Value = (0.01 * tempo.BpmTimes100).ToString();
+                if (!first)
+                {
+                    newTempo.Attribute("Clock").Value = (tempo.PosTick * 2).ToString();
+                }
+                else
+                {
+                    first = false;
+                }
+                firstTempo.AddAfterSelf(newTempo);
                 firstTempo = newTempo;
             }
-            XmlElement AllBeat = (XmlElement)((XmlElement)(((XmlElement)Units.GetElementsByTagName("Unit")[0]).GetElementsByTagName("Song")[0])).GetElementsByTagName("Beat")[0];
-            XmlElement firstBeat = (XmlElement)AllBeat.GetElementsByTagName("Time")[0];
-            firstBeat.SetAttribute("Beats", TimeSigList[0].Nume.ToString());
-            firstBeat.SetAttribute("BeatType", TimeSigList[0].Denomi.ToString());
+
+            var allBeat = units.FirstChild("Unit").FirstChild("Song").FirstChild("Beat");
+            var firstBeat = allBeat.FirstChild("Time");
+            firstBeat.Attribute("Beats").Value = TimeSigList[0].Nume.ToString();
+            firstBeat.Attribute("BeatType").Value = TimeSigList[0].Denomi.ToString();
             int pos = 0;
-            for (int i = 1; i < TimeSigList.Count; i++)
+            first = true;
+            for (int i = 0; i < TimeSigList.Count; i++)
             {
-                XmlElement newBeat = (XmlElement)firstBeat.Clone();
-                pos += (TimeSigList[i].PosMes - TimeSigList[i - 1].PosMes) * 960 * 4 * TimeSigList[i - 1].Nume / TimeSigList[i - 1].Denomi;
-                newBeat.SetAttribute("Clock", pos.ToString());
-                newBeat.SetAttribute("Beats", TimeSigList[i].Nume.ToString());
-                newBeat.SetAttribute("BeatType", TimeSigList[i].Denomi.ToString());
-                AllBeat.InsertAfter(newBeat, firstBeat);
+                var newBeat = new XElement(firstBeat);
+                if (!first)
+                {
+                    pos += (TimeSigList[i].PosMes - TimeSigList[i - 1].PosMes) * 960 * 4 * TimeSigList[i - 1].Nume /
+                           TimeSigList[i - 1].Denomi;
+                    newBeat.Attribute("Clock").Value = pos.ToString();
+                }
+                else
+                {
+                    first = false;
+                }
+                newBeat.Attribute("Beats").Value = TimeSigList[i].Nume.ToString();
+                newBeat.Attribute("BeatType").Value = TimeSigList[i].Denomi.ToString();
+                firstBeat.AddAfterSelf(newBeat);
                 firstBeat = newBeat;
             }
-            List<string> IdList = new List<string>();
-            Random IDRandom = new Random();
-            for (int tracknum = 0; tracknum < TrackList.Count; tracknum++)
+
+            //Dictionary<Track, string> guids = new Dictionary<Track, string>(TrackList.Count);
+            foreach (var track in TrackList)
             {
-                Track thisTrack = TrackList[tracknum];
-                XmlElement newUnit = (XmlElement)EmptyUnit.Clone();
-                XmlElement newGroup = (XmlElement)EmptyGroup.Clone();
-                while (IdList.Count <= tracknum)
+                var newUnit = new XElement(emptyUnit);
+                var newGroup = new XElement(emptyGroup);
+                var guid = Guid.NewGuid().ToString("D");
+                //guids[track] = guid;
+                //while (idList.Count <= tracknum) //原文真是蜜汁GUID构造法...
+                emptyUnit.Attribute("Group").Value = guid;
+                emptyGroup.Attribute("Id").Value = guid;
+                emptyGroup.Attribute("Name").Value = track.TrackName;
+                var song = emptyUnit.FirstChild("Song");
+                var tempo = song.FirstChild("Tempo");
+                var beat = song.FirstChild("Beat");
+                var score = song.FirstChild("Score");
+                tempo.ReplaceWith(new XElement(allTempo));
+                beat.ReplaceWith(new XElement(allBeat));
+
+                foreach (Note Note in track.NoteList)
                 {
-                    string Id = EmptyUnit.GetAttribute("Group");
-                    Id = Id.Remove(30, 6);
-                    Id += IDRandom.Next(999999).ToString("D6");
-                    if (!IdList.Contains(Id))
-                    {
-                        IdList.Add(Id);
-                    }
-                }
-                EmptyUnit.SetAttribute("Group", IdList[tracknum]);
-                EmptyGroup.SetAttribute("Id", IdList[tracknum]);
-                EmptyGroup.SetAttribute("Name", thisTrack.TrackName);
-                XmlElement Song = (XmlElement)EmptyUnit.GetElementsByTagName("Song")[0];
-                XmlElement Tempo = (XmlElement)Song.GetElementsByTagName("Tempo")[0];
-                XmlElement Beat = (XmlElement)Song.GetElementsByTagName("Beat")[0];
-                XmlElement Score = (XmlElement)Song.GetElementsByTagName("Score")[0];
-                Song.ReplaceChild(AllTempo.Clone(), Tempo);
-                Song.ReplaceChild(AllBeat.Clone(), Beat);
-                foreach(Note Note in thisTrack.NoteList)
-                {
-                    XmlElement note = ccs.CreateElement("Note", ccs.DocumentElement.NamespaceURI);
-                    note.SetAttribute("Clock", (Note.NoteTimeOn * 2).ToString());
-                    note.SetAttribute("PitchStep", (Note.NoteKey % 12).ToString());
-                    note.SetAttribute("PitchOctave", (Note.NoteKey / 12 - 1).ToString());
-                    note.SetAttribute("Duration", (Note.GetNoteLength() * 2).ToString());
-                    note.SetAttribute("Lyric", Note.NoteLyric);
-                    Score.AppendChild(note);
+                    score.Add(new XElement("Note",
+                        new XAttribute("Clock", (Note.NoteTimeOn * 2).ToString()),
+                        new XAttribute("PitchStep", (Note.NoteKey % 12).ToString()),
+                        new XAttribute("PitchOctave", (Note.NoteKey / 12 - 1).ToString()),
+                        new XAttribute("Duration", (Note.GetNoteLength() * 2).ToString()),
+                        new XAttribute("Lyric", Note.NoteLyric)
+                    ));
                 }
                 int posTick = 0;
                 int posSecond = 0;
-                int LastTick = thisTrack.NoteList[thisTrack.NoteList.Count - 1].NoteTimeOff;
+                int lastTick = track.NoteList.LastOrDefault()?.NoteTimeOff ?? 0;
                 for (int j = 1; j < TempoList.Count; j++)
                 {
                     posTick = TempoList[j].PosTick;
-                    posSecond += (int)((TempoList[j].PosTick - TempoList[j - 1].PosTick) / 8 / (0.01 * (TempoList[j - 1].BpmTimes100)) + 1);
+                    posSecond += (int)((TempoList[j].PosTick - TempoList[j - 1].PosTick) / 8.0 / (0.01 * TempoList[j - 1].BpmTimes100) + 1);
                 }
-                if (posTick < LastTick)
+                if (posTick < lastTick)
                 {
-                    posSecond += (int)((LastTick - posTick) / 8 / (0.01 * (TempoList[TempoList.Count - 1].BpmTimes100)) + 1);
+                    posSecond += (int)((lastTick - posTick) / 8.0 / (0.01 * (TempoList[TempoList.Count - 1].BpmTimes100)) + 1);
                 }
                 TimeSpan timespan = new TimeSpan(0, 0, posSecond);
-                EmptyUnit.SetAttribute("Duration", timespan.ToString("c"));
-                Units.AppendChild(newUnit);
-                Groups.AppendChild(newGroup);
-                EmptyUnit = newUnit;
-                EmptyGroup = newGroup;
+                emptyUnit.Attribute("Duration").Value = timespan.ToString("c");
+                units.Add(newUnit);
+                groups.Add(newGroup);
+                emptyUnit = newUnit;
+                emptyGroup = newGroup;
             }
-            Units.RemoveChild(EmptyUnit);
-            Groups.RemoveChild(EmptyGroup);
+            toBeRemovedUnit.Remove();
+            toBeRemovedGroup.Remove();
             ccs.Save(filename);
-            //MessageBox.Show("Ccs is successfully exported.","ExportCcs");
-        }
-
-        public enum UtaFormat
-        {
-            Vsq2, //VOCALOID2
-            Vsq3, //VOCALOID3
-            Vsq4, //VOCALOID4
-            Ust, //UTAU
-            Ccs, //CeVIO
-            None
         }
     }
 }

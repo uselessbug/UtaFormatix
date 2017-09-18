@@ -9,20 +9,12 @@ namespace UtaFormatix.Model
         {
             TrackNum = track.TrackNum;
             TrackName = track.TrackName;
-            NoteList = new List<Note>();
-            foreach (Note note in track.NoteList)
-            {
-                NoteList.Add(new Note(note));
-            }
-            PitchList = new List<Pit>();
-            foreach (Pit pit in track.PitchList)
-            {
-                PitchList.Add(new Pit(pit));
-            }
+            NoteList = new List<Note>(track.NoteList);
+            PitchList = new List<Pit>(track.PitchList);
         }
         public int TrackNum;
         public string TrackName;
-        public List<Note> NoteList;
-        public List<Pit> PitchList;
+        public List<Note> NoteList = new List<Note>();
+        public List<Pit> PitchList = new List<Pit>();
     }
 }

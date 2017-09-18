@@ -26,6 +26,6 @@ Some code rewrited by **Ulysses**, wdwxy12345@gmail.com
 
 ## LICENSE
 
-Ask [@Sdercolin](http://sdercolin.com/) Before You Do Anything Evil License.
+*Ask [@Sdercolin](http://sdercolin.com/) Before You Do Anything Evil* License.
 
 

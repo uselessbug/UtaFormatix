@@ -17,7 +17,8 @@ namespace UtaFormatix
         /// <returns></returns>
         public static XElement FirstChild(this XElement e, string childName)
         {
-            return e.Descendants(e.GetDefaultNamespace() + childName).FirstOrDefault();
+            return e.Descendants(e.GetDefaultNamespace() + childName).FirstOrDefault() ??
+                   e.Descendants(e.Name.Namespace + childName).FirstOrDefault();
         }
 
         /// <summary>
@@ -28,7 +29,8 @@ namespace UtaFormatix
         /// <returns></returns>
         public static IEnumerable<XElement> Childs(this XElement e, string childName)
         {
-            return e.Descendants(e.GetDefaultNamespace() + childName);
+            var d = e.Descendants(e.GetDefaultNamespace() + childName);
+            return !d.Any() ? e.Descendants(e.Name.Namespace + childName) : d;
         }
     }
 }

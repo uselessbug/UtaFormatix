@@ -6,24 +6,25 @@ namespace UtaFormatix
 {
     public class Lyric
     {
-        public Lyric(Data data, bool DoAnalyze)
+        private Data _data;
+        public Lyric(Data data, bool doAnalyze)
         {
-            this.data = data;
-            if (DoAnalyze)
+            this._data = data;
+            if (doAnalyze)
             {
                 LyricTypeAnalyze();
             }
         }
-        Data data;
+
         public LyricType AnalyzedType = LyricType.None;
         void LyricTypeAnalyze()
         {
-            LyricType project_lyrictype = LyricType.None;
-            foreach (Track track in data.TrackList)
+            LyricType projectLyrictype = LyricType.None;
+            foreach (Track track in _data.TrackList)
             {
-                List<Note> NoteList = track.NoteList;
+                List<Note> noteList = track.NoteList;
                 int[] typecount = new int[4] { 0, 0, 0, 0 };
-                foreach (Note note in NoteList)
+                foreach (Note note in noteList)
                 {
                     if (note.NoteLyric.Contains(" "))
                     {
@@ -60,51 +61,48 @@ namespace UtaFormatix
                                     typecount[2]++;
                                     break;
                                 }
-                                else
+                                if (FindRomaji(note.NoteLyric.Substring(0, i)) != -1)
                                 {
-                                    if (FindRomaji(note.NoteLyric.Substring(0, i)) != -1)
-                                    {
-                                        typecount[0]++;
-                                        break;
-                                    }
+                                    typecount[0]++;
+                                    break;
                                 }
                             }
                         }
                         catch { }
                     }
                 }
-                LyricType track_lyrictype = LyricType.None;
+                LyricType trackLyrictype = LyricType.None;
                 for (int i = 0; i < 4; i++)
                 {
-                    if (100 * typecount[i] / NoteList.Count > 50)
+                    if (100 * typecount[i] / noteList.Count > 50)
                     {
-                        if (track_lyrictype == LyricType.None)
+                        if (trackLyrictype == LyricType.None)
                         {
-                            track_lyrictype = (LyricType)(i + 1);
+                            trackLyrictype = (LyricType)(i + 1);
                         }
                         else
                         {
-                            track_lyrictype = LyricType.None;
+                            trackLyrictype = LyricType.None;
                             break;
                         }
                     }
                 }
-                if (track_lyrictype > 0)
+                if (trackLyrictype > 0)
                 {
-                    if (project_lyrictype == LyricType.None)
+                    if (projectLyrictype == LyricType.None)
                     {
-                        project_lyrictype = track_lyrictype;
+                        projectLyrictype = trackLyrictype;
                     }
                     else
                     {
-                        if (project_lyrictype != track_lyrictype)
+                        if (projectLyrictype != trackLyrictype)
                         {
                             return;
                         }
                     }
                 }
             }
-            AnalyzedType = project_lyrictype;
+            AnalyzedType = projectLyrictype;
         }
         public void Transform(LyricType fromtype, LyricType totype)
         {
@@ -169,29 +167,29 @@ namespace UtaFormatix
 
         void CleanLyric(LyricType type)
         {
-            foreach (Track track in data.TrackList)
+            foreach (Track track in _data.TrackList)
             {
-                List<Note> NoteList = track.NoteList;
+                List<Note> noteList = track.NoteList;
                 switch (type)
                 {
                     case LyricType.Romaji_Tandoku:
                         {
-                            for (int i = 0; i < NoteList.Count; i++)
+                            for (int i = 0; i < noteList.Count; i++)
                             {
-                                if (NoteList[i].NoteLyric != "")
+                                if (noteList[i].NoteLyric != "")
                                 {
-                                    NoteList[i].NoteLyric = NoteList[i].NoteLyric.ToLower();
-                                    if (NoteList[i].NoteLyric.Substring(0, 1) == "?")
+                                    noteList[i].NoteLyric = noteList[i].NoteLyric.ToLower();
+                                    if (noteList[i].NoteLyric.Substring(0, 1) == "?")
                                     {
-                                        NoteList[i].NoteLyric = NoteList[i].NoteLyric.Remove(0, 1);
+                                        noteList[i].NoteLyric = noteList[i].NoteLyric.Remove(0, 1);
                                     }
                                     try
                                     {
                                         for (int j = 3; j >= 1; j--)
                                         {
-                                            if (FindRomaji(NoteList[i].NoteLyric.Substring(0, j)) != -1)
+                                            if (FindRomaji(noteList[i].NoteLyric.Substring(0, j)) != -1)
                                             {
-                                                NoteList[i].NoteLyric = NoteList[i].NoteLyric.Substring(0, j);
+                                                noteList[i].NoteLyric = noteList[i].NoteLyric.Substring(0, j);
                                                 break;
                                             }
                                         }
@@ -203,44 +201,44 @@ namespace UtaFormatix
                         }//未考虑罗马音单独音除“?”以外的前缀
                     case LyricType.Romaji_Renzoku:
                         {
-                            for (int i = 0; i < NoteList.Count; i++)
+                            for (int i = 0; i < noteList.Count; i++)
                             {
-                                if (NoteList[i].NoteLyric != "")
+                                if (noteList[i].NoteLyric != "")
                                 {
-                                    NoteList[i].NoteLyric = NoteList[i].NoteLyric.ToLower();
-                                    if (NoteList[i].NoteLyric.Contains(" "))
+                                    noteList[i].NoteLyric = noteList[i].NoteLyric.ToLower();
+                                    if (noteList[i].NoteLyric.Contains(" "))
                                     {
-                                        int blank_pos = NoteList[i].NoteLyric.IndexOf(" ");
+                                        int blankPos = noteList[i].NoteLyric.IndexOf(" ");
                                         string body = "";
                                         try
                                         {
                                             for (int j = 1; j <= 3; j++)
                                             {
-                                                if (FindRomaji(NoteList[i].NoteLyric.Substring(blank_pos + 1, j)) != -1)
+                                                if (FindRomaji(noteList[i].NoteLyric.Substring(blankPos + 1, j)) != -1)
                                                 {
-                                                    body = NoteList[i].NoteLyric.Substring(blank_pos + 1, j);
+                                                    body = noteList[i].NoteLyric.Substring(blankPos + 1, j);
                                                 }
                                             }
                                         }
                                         catch { }
-                                        if (body != "" && IsGobi(NoteList[i].NoteLyric.Substring(blank_pos - 1, 1)))
+                                        if (body != "" && IsGobi(noteList[i].NoteLyric.Substring(blankPos - 1, 1)))
                                         {
-                                            NoteList[i].NoteLyric = NoteList[i].NoteLyric.Substring(blank_pos - 1, 1) + " " + body;
+                                            noteList[i].NoteLyric = noteList[i].NoteLyric.Substring(blankPos - 1, 1) + " " + body;
                                         }
                                     }
                                     else
                                     {
-                                        if (NoteList[i].NoteLyric.Substring(0, 1) == "?")
+                                        if (noteList[i].NoteLyric.Substring(0, 1) == "?")
                                         {
-                                            NoteList[i].NoteLyric = NoteList[i].NoteLyric.Remove(0, 1);
+                                            noteList[i].NoteLyric = noteList[i].NoteLyric.Remove(0, 1);
                                         }
                                         try
                                         {
                                             for (int j = 3; j >= 1; j--)
                                             {
-                                                if (FindRomaji(NoteList[i].NoteLyric.Substring(0, j)) != -1)
+                                                if (FindRomaji(noteList[i].NoteLyric.Substring(0, j)) != -1)
                                                 {
-                                                    NoteList[i].NoteLyric = NoteList[i].NoteLyric.Substring(0, j);
+                                                    noteList[i].NoteLyric = noteList[i].NoteLyric.Substring(0, j);
                                                     break;
                                                 }
                                             }
@@ -253,28 +251,28 @@ namespace UtaFormatix
                         }
                     case LyricType.Kana_Tandoku:
                         {
-                            for (int i = 0; i < NoteList.Count; i++)
+                            for (int i = 0; i < noteList.Count; i++)
                             {
-                                if (NoteList[i].NoteLyric != "")
+                                if (noteList[i].NoteLyric != "")
                                 {
                                     string buf = "";
-                                    for (int j = 0; j < NoteList[i].NoteLyric.Length; j++)
+                                    for (int j = 0; j < noteList[i].NoteLyric.Length; j++)
                                     {
                                         try
                                         {
-                                            buf = NoteList[i].NoteLyric.Substring(j, 2);
+                                            buf = noteList[i].NoteLyric.Substring(j, 2);
                                             if (FindKana(buf) == -1)
                                             {
-                                                buf = NoteList[i].NoteLyric.Substring(j, 1);
+                                                buf = noteList[i].NoteLyric.Substring(j, 1);
                                             }
                                         }
                                         catch
                                         {
-                                            buf = NoteList[i].NoteLyric.Substring(j, 1);
+                                            buf = noteList[i].NoteLyric.Substring(j, 1);
                                         }
                                         if (FindKana(buf) != -1)
                                         {
-                                            NoteList[i].NoteLyric = buf;
+                                            noteList[i].NoteLyric = buf;
                                             break;
                                         }
                                     }
@@ -284,51 +282,51 @@ namespace UtaFormatix
                         }
                     case LyricType.Kana_Renzoku:
                         {
-                            for (int i = 0; i < NoteList.Count; i++)
+                            for (int i = 0; i < noteList.Count; i++)
                             {
-                                if (NoteList[i].NoteLyric != "")
+                                if (noteList[i].NoteLyric != "")
                                 {
-                                    if (NoteList[i].NoteLyric.Contains(" "))
+                                    if (noteList[i].NoteLyric.Contains(" "))
                                     {
-                                        int blank_pos = NoteList[i].NoteLyric.IndexOf(" ");
+                                        int blankPos = noteList[i].NoteLyric.IndexOf(" ");
                                         string body;
                                         try
                                         {
-                                            body = NoteList[i].NoteLyric.Substring(blank_pos + 1, 2);
+                                            body = noteList[i].NoteLyric.Substring(blankPos + 1, 2);
                                             if (FindKana(body) == -1)
                                             {
-                                                body = NoteList[i].NoteLyric.Substring(blank_pos + 1, 1);
+                                                body = noteList[i].NoteLyric.Substring(blankPos + 1, 1);
                                             }
                                         }
                                         catch
                                         {
-                                            body = NoteList[i].NoteLyric.Substring(blank_pos + 1, 1);
+                                            body = noteList[i].NoteLyric.Substring(blankPos + 1, 1);
                                         }
-                                        if (FindKana(body) != -1 && IsGobi(NoteList[i].NoteLyric.Substring(blank_pos - 1, 1)))
+                                        if (FindKana(body) != -1 && IsGobi(noteList[i].NoteLyric.Substring(blankPos - 1, 1)))
                                         {
-                                            NoteList[i].NoteLyric = NoteList[i].NoteLyric.Substring(blank_pos - 1, 1) + " " + body;
+                                            noteList[i].NoteLyric = noteList[i].NoteLyric.Substring(blankPos - 1, 1) + " " + body;
                                         }
                                     }
                                     else
                                     {
                                         string buf = "";
-                                        for (int j = 0; j < NoteList[i].NoteLyric.Length; j++)
+                                        for (int j = 0; j < noteList[i].NoteLyric.Length; j++)
                                         {
                                             try
                                             {
-                                                buf = NoteList[i].NoteLyric.Substring(j, 2);
+                                                buf = noteList[i].NoteLyric.Substring(j, 2);
                                                 if (FindKana(buf) == -1)
                                                 {
-                                                    buf = NoteList[i].NoteLyric.Substring(j, 1);
+                                                    buf = noteList[i].NoteLyric.Substring(j, 1);
                                                 }
                                             }
                                             catch
                                             {
-                                                buf = NoteList[i].NoteLyric.Substring(j, 1);
+                                                buf = noteList[i].NoteLyric.Substring(j, 1);
                                             }
                                             if (FindKana(buf) != -1)
                                             {
-                                                NoteList[i].NoteLyric = buf;
+                                                noteList[i].NoteLyric = buf;
                                                 break;
                                             }
                                         }
@@ -342,40 +340,40 @@ namespace UtaFormatix
         }
         void TransLyricsRomaji2Kana(TransDirection mode)
         {
-            foreach (Track track in data.TrackList)
+            foreach (Track track in _data.TrackList)
             {
-                List<Note> NoteList = track.NoteList;
+                List<Note> noteList = track.NoteList;
                 switch (mode)
                 {
                     case TransDirection.None:  //Do nothing 
                         break;
                     case TransDirection.Sequential:  //Romaji to Kana
-                        for (int i = 0; i < NoteList.Count; i++)
+                        for (int i = 0; i < noteList.Count; i++)
                         {
-                            if (NoteList[i].NoteLyric.Contains(" ")) //is RenZokuOn
+                            if (noteList[i].NoteLyric.Contains(" ")) //is RenZokuOn
                             {
-                                string head = NoteList[i].NoteLyric.Substring(0, 1);
-                                string body = NoteList[i].NoteLyric.Remove(0, 2);
-                                NoteList[i].NoteLyric = head + " " + ConvertRomajiToKana(body);
+                                string head = noteList[i].NoteLyric.Substring(0, 1);
+                                string body = noteList[i].NoteLyric.Remove(0, 2);
+                                noteList[i].NoteLyric = head + " " + ConvertRomajiToKana(body);
                             }
                             else //is TanDokuOn
                             {
-                                NoteList[i].NoteLyric = ConvertRomajiToKana(NoteList[i].NoteLyric);
+                                noteList[i].NoteLyric = ConvertRomajiToKana(noteList[i].NoteLyric);
                             }
                         }
                         break;
                     case TransDirection.Reverse:  //Kana to Romaji 
-                        for (int i = 0; i < NoteList.Count; i++)
+                        for (int i = 0; i < noteList.Count; i++)
                         {
-                            if (NoteList[i].NoteLyric.Contains(" ")) //is RenZokuOn
+                            if (noteList[i].NoteLyric.Contains(" ")) //is RenZokuOn
                             {
-                                string head = NoteList[i].NoteLyric.Substring(0, 1);
-                                string body = NoteList[i].NoteLyric.Remove(0, 2);
-                                NoteList[i].NoteLyric = head + " " + ConvertKanaToRomaji(body);
+                                string head = noteList[i].NoteLyric.Substring(0, 1);
+                                string body = noteList[i].NoteLyric.Remove(0, 2);
+                                noteList[i].NoteLyric = head + " " + ConvertKanaToRomaji(body);
                             }
                             else //is TanDokuOn
                             {
-                                NoteList[i].NoteLyric = ConvertKanaToRomaji(NoteList[i].NoteLyric);
+                                noteList[i].NoteLyric = ConvertKanaToRomaji(noteList[i].NoteLyric);
                             }
                         }
                         break;
@@ -384,111 +382,101 @@ namespace UtaFormatix
         }
         void TransLyricsTan2Ren(TransDirection mode)
         {
-            foreach (Track track in data.TrackList)
+            foreach (Track track in _data.TrackList)
             {
-                List<Note> NoteList = track.NoteList;
+                List<Note> noteList = track.NoteList;
                 switch (mode)
                 {
                     case TransDirection.None:  //Do nothing 
                         break;
                     case TransDirection.Sequential:  //TanDoku to RenZoku
-                        string tail_of_last = "-";
-                        for (int i = 0; i < NoteList.Count; i++)
+                        string tailOfLast = "-";
+                        for (int i = 0; i < noteList.Count; i++)
                         {
-                            string tail = tail_of_last;
-                            if (i > 0 && NoteList[i].NoteTimeOn > NoteList[i - 1].NoteTimeOff)
+                            string tail = tailOfLast;
+                            if (i > 0 && noteList[i].NoteTimeOn > noteList[i - 1].NoteTimeOff)
                             {
                                 tail = "-";
                             }
-                            if (FindKana(NoteList[i].NoteLyric) != -1)  //is Kana
+                            if (FindKana(noteList[i].NoteLyric) != -1)  //is Kana
                             {
-                                tail_of_last = ConvertKanaToRomaji(NoteList[i].NoteLyric).Substring(ConvertKanaToRomaji(NoteList[i].NoteLyric).Length - 1, 1);
-                                NoteList[i].NoteLyric = tail + " " + NoteList[i].NoteLyric;
+                                tailOfLast = ConvertKanaToRomaji(noteList[i].NoteLyric).Substring(ConvertKanaToRomaji(noteList[i].NoteLyric).Length - 1, 1);
+                                noteList[i].NoteLyric = tail + " " + noteList[i].NoteLyric;
                             }
-                            else if (FindRomaji(NoteList[i].NoteLyric) != -1) //is Romaji
+                            else if (FindRomaji(noteList[i].NoteLyric) != -1) //is Romaji
                             {
-                                tail_of_last = NoteList[i].NoteLyric.Substring(NoteList[i].NoteLyric.Length - 1, 1);
-                                NoteList[i].NoteLyric = tail + " " + NoteList[i].NoteLyric;
+                                tailOfLast = noteList[i].NoteLyric.Substring(noteList[i].NoteLyric.Length - 1, 1);
+                                noteList[i].NoteLyric = tail + " " + noteList[i].NoteLyric;
                             }
                             else
                             {
-                                tail_of_last = "-";
+                                tailOfLast = "-";
                             }
                         }
                         break;
                     case TransDirection.Reverse:  //RenZoku to TanDoku
-                        for (int i = 0; i < NoteList.Count; i++)
+                        for (int i = 0; i < noteList.Count; i++)
                         {
-                            if (NoteList[i].NoteLyric.Contains(" ") && (FindKana(NoteList[i].NoteLyric.Remove(0, 2)) != -1 || FindRomaji(NoteList[i].NoteLyric.Remove(0, 2)) != -1))
+                            if (noteList[i].NoteLyric.Contains(" ") && (FindKana(noteList[i].NoteLyric.Remove(0, 2)) != -1 || FindRomaji(noteList[i].NoteLyric.Remove(0, 2)) != -1))
                             {
-                                NoteList[i].NoteLyric = NoteList[i].NoteLyric.Remove(0, 2);
+                                noteList[i].NoteLyric = noteList[i].NoteLyric.Remove(0, 2);
                             }
                         }
                         break;
                 }
             }
         }
-        string ConvertKanaToRomaji(string _kana)
+        string ConvertKanaToRomaji(string kana)
         {
-            for (int i = 0; i < Kanas.Length; i++)
+            for (int i = 0; i < _kanas.Length; i++)
             {
-                if (_kana == Kanas[i])
+                if (kana == _kanas[i])
                 {
-                    return Romajis[i];
+                    return _romajis[i];
                 }
             }
-            return _kana;
+            return kana;
         }
-        string ConvertRomajiToKana(string _romaji)
+        string ConvertRomajiToKana(string romaji)
         {
-            for (int i = 0; i < Kanas.Length; i++)
+            for (int i = 0; i < _kanas.Length; i++)
             {
-                if (_romaji == Romajis[i])
+                if (romaji == _romajis[i])
                 {
-                    return Kanas[i];
+                    return _kanas[i];
                 }
             }
-            return _romaji;
+            return romaji;
         }
-        int FindKana(string _kana)
+        int FindKana(string kana)
         {
-            for (int i = 0; i < Kanas.Length; i++)
+            for (int i = 0; i < _kanas.Length; i++)
             {
-                if (_kana == Kanas[i])
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        int FindRomaji(string _romaji)
-        {
-            for (int i = 0; i < Kanas.Length; i++)
-            {
-                if (_romaji == Romajis[i])
+                if (kana == _kanas[i])
                 {
                     return i;
                 }
             }
             return -1;
         }
-        bool IsGobi(string _gobi)
+        int FindRomaji(string romaji)
         {
-            if (_gobi.Length != 1)
+            for (int i = 0; i < _kanas.Length; i++)
+            {
+                if (romaji == _romajis[i])
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        bool IsGobi(string gobi)
+        {
+            if (gobi.Length != 1)
             {
                 return false;
             }
-            else
-            {
-                if (_gobi == "a" || _gobi == "i" || _gobi == "u" || _gobi == "e" || _gobi == "o" || _gobi == "n" || _gobi == "-")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return gobi == "a" || gobi == "i" || gobi == "u" || gobi == "e" || gobi == "o" || gobi == "n" || gobi == "-";
         }
         public enum LyricType
         {
@@ -504,7 +492,7 @@ namespace UtaFormatix
             Sequential,
             Reverse,
         }
-        string[] Kanas = { "あ", "い", "いぇ", "う", "わ", "うぁ", "うぁ", "うぃ", "うぃ", "うぇ", "え", "お", "か", "が", "き", "きぇ", "きゃ", "きゅ", "きょ", "ぎ", "ぎぇ", "ぎゃ", "ぎゅ", "ぎょ", "く", "くぁ", "くぃ", "くぇ", "くぉ", "ぐ", "ぐぁ", "ぐぃ", "ぐぇ", "ぐぉ", "け", "げ", "こ", "ご", "さ", "ざ", "し", "し", "しぇ", "しぇ", "しゃ", "しゃ", "しゅ", "しゅ", "しょ", "しょ", "じ", "じぇ", "じぇ", "じゃ", "じゃ", "じゅ", "じゅ", "じょ", "じょ", "す", "すぁ", "すぃ", "すぇ", "すぉ", "ず", "ずぁ", "ずぃ", "ずぇ", "ずぉ", "せ", "ぜ", "そ", "ぞ", "た", "だ", "ち", "ちぇ", "ちゃ", "ちゅ", "ちょ", "つ", "つ", "つぁ", "つぁ", "つぃ", "つぃ", "つぇ", "つぇ", "つぉ", "つぉ", "て", "てぃ", "てゅ", "で", "でぃ", "でゅ", "と", "とぅ", "とぅ", "ど", "どぅ", "どぅ", "な", "に", "にぇ", "にゃ", "にゅ", "にょ", "ぬ", "ぬぁ", "ぬぃ", "ぬぇ", "ぬぉ", "ね", "の", "は", "ば", "ぱ", "ひ", "ひぇ", "ひゃ", "ひゅ", "ひょ", "び", "びぇ", "びゃ", "びゅ", "びょ", "ぴ", "ぴぇ", "ぴゃ", "ぴゅ", "ぴょ", "ふ", "ふぁ", "ふぃ", "ふぇ", "ふぉ", "ぶ", "ぶぁ", "ぶぃ", "ぶぇ", "ぶぉ", "ぷ", "ぷぁ", "ぷぃ", "ぷぇ", "ぷぉ", "へ", "べ", "ぺ", "ほ", "ぼ", "ぽ", "ま", "み", "みぇ", "みゃ", "みゅ", "みょ", "む", "むぁ", "むぃ", "むぇ", "むぉ", "め", "も", "や", "ゆ", "よ", "ら", "り", "りぇ", "りゃ", "りゅ", "りょ", "る", "るぁ", "るぃ", "るぇ", "るぉ", "れ", "ろ", "わ", "を", "うぉ", "ん", "ー" };
-        string[] Romajis = { "a", "i", "ye", "u", "wa", "wa", "ua", "wi", "ui", "we", "e", "o", "ka", "ga", "ki", "kye", "kya", "kyu", "kyo", "gi", "gye", "gya", "gyu", "gyo", "ku", "kua", "kui", "kue", "kuo", "gu", "gua", "gui", "gue", "guo", "ke", "ge", "ko", "go", "sa", "za", "shi", "si", "she", "sye", "sha", "sya", "shu", "syu", "sho", "syo", "ji", "je", "jye", "ja", "jya", "ju", "jyu", "jo", "jyo", "su", "sua", "sui", "sue", "suo", "zu", "zua", "zui", "zue", "zuo", "se", "ze", "so", "zo", "ta", "da", "chi", "che", "cha", "chu", "cho", "tsu", "tu", "tsa", "tua", "tsi", "tui", "tse", "tue", "tso", "tuo", "te", "ti", "tyu", "de", "di", "dyu", "to", "tu", "twu", "do", "du", "dwu", "na", "ni", "nye", "nya", "nyu", "nyo", "nu", "nua", "nui", "nue", "nuo", "ne", "no", "ha", "ba", "pa", "hi", "hye", "hya", "hyu", "hyo", "bi", "bye", "bya", "byu", "byo", "pi", "pye", "pya", "pyu", "pyo", "fu", "fa", "fi", "fe", "fo", "bu", "bua", "bui", "bue", "buo", "pu", "pua", "pui", "pue", "puo", "he", "be", "pe", "ho", "bo", "po", "ma", "mi", "mye", "mya", "myu", "myo", "mu", "mua", "mui", "mue", "muo", "me", "mo", "ya", "yu", "yo", "ra", "ri", "rye", "rya", "ryu", "ryo", "ru", "rua", "rui", "rue", "ruo", "re", "ro", "wa", "o", "wo", "n", "-" };
+        string[] _kanas = { "あ", "い", "いぇ", "う", "わ", "うぁ", "うぁ", "うぃ", "うぃ", "うぇ", "え", "お", "か", "が", "き", "きぇ", "きゃ", "きゅ", "きょ", "ぎ", "ぎぇ", "ぎゃ", "ぎゅ", "ぎょ", "く", "くぁ", "くぃ", "くぇ", "くぉ", "ぐ", "ぐぁ", "ぐぃ", "ぐぇ", "ぐぉ", "け", "げ", "こ", "ご", "さ", "ざ", "し", "し", "しぇ", "しぇ", "しゃ", "しゃ", "しゅ", "しゅ", "しょ", "しょ", "じ", "じぇ", "じぇ", "じゃ", "じゃ", "じゅ", "じゅ", "じょ", "じょ", "す", "すぁ", "すぃ", "すぇ", "すぉ", "ず", "ずぁ", "ずぃ", "ずぇ", "ずぉ", "せ", "ぜ", "そ", "ぞ", "た", "だ", "ち", "ちぇ", "ちゃ", "ちゅ", "ちょ", "つ", "つ", "つぁ", "つぁ", "つぃ", "つぃ", "つぇ", "つぇ", "つぉ", "つぉ", "て", "てぃ", "てゅ", "で", "でぃ", "でゅ", "と", "とぅ", "とぅ", "ど", "どぅ", "どぅ", "な", "に", "にぇ", "にゃ", "にゅ", "にょ", "ぬ", "ぬぁ", "ぬぃ", "ぬぇ", "ぬぉ", "ね", "の", "は", "ば", "ぱ", "ひ", "ひぇ", "ひゃ", "ひゅ", "ひょ", "び", "びぇ", "びゃ", "びゅ", "びょ", "ぴ", "ぴぇ", "ぴゃ", "ぴゅ", "ぴょ", "ふ", "ふぁ", "ふぃ", "ふぇ", "ふぉ", "ぶ", "ぶぁ", "ぶぃ", "ぶぇ", "ぶぉ", "ぷ", "ぷぁ", "ぷぃ", "ぷぇ", "ぷぉ", "へ", "べ", "ぺ", "ほ", "ぼ", "ぽ", "ま", "み", "みぇ", "みゃ", "みゅ", "みょ", "む", "むぁ", "むぃ", "むぇ", "むぉ", "め", "も", "や", "ゆ", "よ", "ら", "り", "りぇ", "りゃ", "りゅ", "りょ", "る", "るぁ", "るぃ", "るぇ", "るぉ", "れ", "ろ", "わ", "を", "うぉ", "ん", "ー" };
+        string[] _romajis = { "a", "i", "ye", "u", "wa", "wa", "ua", "wi", "ui", "we", "e", "o", "ka", "ga", "ki", "kye", "kya", "kyu", "kyo", "gi", "gye", "gya", "gyu", "gyo", "ku", "kua", "kui", "kue", "kuo", "gu", "gua", "gui", "gue", "guo", "ke", "ge", "ko", "go", "sa", "za", "shi", "si", "she", "sye", "sha", "sya", "shu", "syu", "sho", "syo", "ji", "je", "jye", "ja", "jya", "ju", "jyu", "jo", "jyo", "su", "sua", "sui", "sue", "suo", "zu", "zua", "zui", "zue", "zuo", "se", "ze", "so", "zo", "ta", "da", "chi", "che", "cha", "chu", "cho", "tsu", "tu", "tsa", "tua", "tsi", "tui", "tse", "tue", "tso", "tuo", "te", "ti", "tyu", "de", "di", "dyu", "to", "tu", "twu", "do", "du", "dwu", "na", "ni", "nye", "nya", "nyu", "nyo", "nu", "nua", "nui", "nue", "nuo", "ne", "no", "ha", "ba", "pa", "hi", "hye", "hya", "hyu", "hyo", "bi", "bye", "bya", "byu", "byo", "pi", "pye", "pya", "pyu", "pyo", "fu", "fa", "fi", "fe", "fo", "bu", "bua", "bui", "bue", "buo", "pu", "pua", "pui", "pue", "puo", "he", "be", "pe", "ho", "bo", "po", "ma", "mi", "mye", "mya", "myu", "myo", "mu", "mua", "mui", "mue", "muo", "me", "mo", "ya", "yu", "yo", "ra", "ri", "rye", "rya", "ryu", "ryo", "ru", "rua", "rui", "rue", "ruo", "re", "ro", "wa", "o", "wo", "n", "-" };
     }
 }
