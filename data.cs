@@ -686,6 +686,7 @@ namespace UtaFormatix
                             new XElement("p", new XCData("a")),
                             new XElement(defaultStyle)
                         );
+                        noteNode.ApplyNamespace(nameSpace);
                         lastNote.AddAfterSelf(noteNode);
                         lastNote = noteNode;
                         time = currentNote.NoteTimeOff;

@@ -32,5 +32,27 @@ namespace UtaFormatix
             var d = e.Descendants(e.GetDefaultNamespace() + childName);
             return !d.Any() ? e.Descendants(e.Name.Namespace + childName) : d;
         }
+
+        /// <summary>
+        /// Apply Namespace for itself and all chlids
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="nameSpace"></param>
+        /// <param name="overwrite"></param>
+        public static void ApplyNamespace(this XElement parent, XNamespace nameSpace, bool overwrite = true)
+        {
+            if (nameSpace == XNamespace.None || nameSpace == "")
+            {
+                return;
+            }
+            if (overwrite || parent.Name.Namespace == XNamespace.None || parent.Name.Namespace == "")
+            {
+                parent.Name = nameSpace + parent.Name.LocalName;
+            }
+            foreach (XElement child in parent.Elements())
+            {
+                ApplyNamespace(child, nameSpace);
+            }
+        }
     }
 }
