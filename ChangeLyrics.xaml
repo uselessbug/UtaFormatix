@@ -3,23 +3,36 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:UtaFormatix"
         mc:Ignorable="d"
         Title="Lyrics Transformation" Height="298.28" Width="331.806" Background="#FF131313" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ScrollViewer.VerticalScrollBarVisibility="Disabled" Icon="Resources/H 256.ico" Loaded="Window_Loaded">
     <Grid>
-        <RadioButton x:Name="radioButton_from1" Content="Romaji CV" HorizontalAlignment="Left" Margin="23,78,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
-        <RadioButton x:Name="radioButton_from2" Content="Romaji VCV" HorizontalAlignment="Left" Margin="23,102,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
-        <RadioButton x:Name="radioButton_from3" Content="Kana CV" HorizontalAlignment="Left" Margin="23,126,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
-        <RadioButton x:Name="radioButton_from4" Content="Kana VCV" HorizontalAlignment="Left" Margin="23,150,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
-        <RadioButton x:Name="radioButton_to1" Content="Romaji CV" HorizontalAlignment="Left" Margin="194,78,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
-        <RadioButton x:Name="radioButton_to2" Content="Romaji VCV" HorizontalAlignment="Left" Margin="194,102,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
-        <RadioButton x:Name="radioButton_to3" Content="Kana CV" HorizontalAlignment="Left" Margin="194,126,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
-        <RadioButton x:Name="radioButton_to4" Content="Kana VCV" HorizontalAlignment="Left" Margin="194,150,0,0" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
-        <Button x:Name="button_confirm" Content="OK" HorizontalAlignment="Left" Margin="223,230,0,0" VerticalAlignment="Top" Width="87" Height="24" Click="button_confirm_Click"/>
-        <Label x:Name="label" Content="From:" HorizontalAlignment="Left" Margin="19,50,0,0" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
-        <Label x:Name="label2" Content="To:" HorizontalAlignment="Left" Margin="189,50,0,0" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
-        <Label x:Name="label3" Content="Select the type of the lyrics (Only for Japanese):" HorizontalAlignment="Left" Margin="19,17,0,0" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
-        <Button x:Name="button_cancel" Content="Keep Original" HorizontalAlignment="Left" Margin="94,230,0,0" VerticalAlignment="Top" Width="107" Height="24" Click="button_cancel_Click"/>
-        <Label x:Name="label3_Copy" Content="If you choose to do this process,&#xD;&#xA;it may take a while.  Please wait patiently..." HorizontalAlignment="Left" Margin="23,176,0,0" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="1" HorizontalAlignment="Center">
+            <Label x:Name="label" Content="From:" HorizontalAlignment="Left" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
+            <RadioButton x:Name="RdoRomaCV" Content="Romaji CV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
+            <RadioButton x:Name="RdoRomaVCV" Content="Romaji VCV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
+            <RadioButton x:Name="RdoKanaCV" Content="Kana CV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
+            <RadioButton x:Name="RdoKanaVCV" Content="Kana VCV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="FromType"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Vertical" Grid.Row="1" HorizontalAlignment="Center">
+            <Label x:Name="label2" Content="To:" HorizontalAlignment="Left" Foreground="#FF8B8B8B" VerticalAlignment="Top"/>
+            <RadioButton x:Name="Rdo2RomaCV" Content="Romaji CV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
+            <RadioButton x:Name="Rdo2RomaVCV" Content="Romaji VCV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
+            <RadioButton x:Name="Rdo2KanaCV" Content="Kana CV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
+            <RadioButton x:Name="Rdo2KanaVCV" Content="Kana VCV" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Foreground="#FF8B8B8B" GroupName="ToType"/>
+        </StackPanel>
+        <Button x:Name="button_confirm" Content="OK" HorizontalAlignment="Center" VerticalAlignment="Center" Width="87" Height="24" Click="button_confirm_Click" Grid.Row="3" Grid.Column="1"/>
+        <Label x:Name="label3" Content="Select the type of the lyrics (Only for Japanese):" HorizontalAlignment="Center" Foreground="#FF8B8B8B" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <Button x:Name="button_cancel" Content="Keep Original" HorizontalAlignment="Center" VerticalAlignment="Center" Width="107" Height="24" Click="button_cancel_Click" Grid.Row="3"/>
+        <Label x:Name="label3_Copy" Content="If you choose to do this process,&#xA;it may take a while.  Please wait patiently..." HorizontalAlignment="Center" Foreground="#FF8B8B8B" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

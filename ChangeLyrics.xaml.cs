@@ -33,39 +33,39 @@ namespace UtaFormatix
 
         private void button_confirm_Click(object sender, RoutedEventArgs e)
         {
-            if(radioButton_from1.IsChecked==true || radioButton_from2.IsChecked == true || radioButton_from3.IsChecked == true || radioButton_from4.IsChecked == true)
+            if(RdoRomaCV.IsChecked==true || RdoRomaVCV.IsChecked == true || RdoKanaCV.IsChecked == true || RdoKanaVCV.IsChecked == true)
             {
-                if (radioButton_to1.IsChecked == true || radioButton_to2.IsChecked == true || radioButton_to3.IsChecked == true || radioButton_to4.IsChecked == true)
+                if (Rdo2RomaCV.IsChecked == true || Rdo2RomaVCV.IsChecked == true || Rdo2KanaCV.IsChecked == true || Rdo2KanaVCV.IsChecked == true)
                 {
-                    if (radioButton_from1.IsChecked == true)
+                    if (RdoRomaCV.IsChecked == true)
                     {
                         fromType = Lyric.LyricType.Romaji_Tandoku;
                     }
-                    else if (radioButton_from2.IsChecked == true)
+                    else if (RdoRomaVCV.IsChecked == true)
                     {
                         fromType = Lyric.LyricType.Romaji_Renzoku;
                     }
-                    else if (radioButton_from3.IsChecked == true)
+                    else if (RdoKanaCV.IsChecked == true)
                     {
                         fromType = Lyric.LyricType.Kana_Tandoku;
                     }
-                    else if (radioButton_from4.IsChecked == true)
+                    else if (RdoKanaVCV.IsChecked == true)
                     {
                         fromType = Lyric.LyricType.Kana_Renzoku;
                     }
-                    if (radioButton_to1.IsChecked == true)
+                    if (Rdo2RomaCV.IsChecked == true)
                     {
                         ToType = Lyric.LyricType.Romaji_Tandoku;
                     }
-                    else if (radioButton_to2.IsChecked == true)
+                    else if (Rdo2RomaVCV.IsChecked == true)
                     {
                         ToType = Lyric.LyricType.Romaji_Renzoku;
                     }
-                    else if (radioButton_to3.IsChecked == true)
+                    else if (Rdo2KanaCV.IsChecked == true)
                     {
                         ToType = Lyric.LyricType.Kana_Tandoku;
                     }
-                    else if (radioButton_to4.IsChecked == true)
+                    else if (Rdo2KanaVCV.IsChecked == true)
                     {
                         ToType = Lyric.LyricType.Kana_Renzoku;
                     }

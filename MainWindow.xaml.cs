@@ -19,7 +19,7 @@ namespace UtaFormatix
         public MainWindow()
         {
             InitializeComponent();
-            label.Content = Version;
+            LblVer.Content = Version;
         }
 
         private void ExportVsq4(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -228,36 +228,36 @@ namespace UtaFormatix
             {
                 case Lyric.LyricType.None:
                     MessageBox.Show("The type of the lyrics is not detected, please select the correct type by yourself.", "Lyrics Transformation");
-                    changelyrics.radioButton_from1.IsChecked = true;
+                    changelyrics.RdoRomaCV.IsChecked = true;
                     break;
                 case Lyric.LyricType.Romaji_Tandoku:
-                    changelyrics.radioButton_from1.IsChecked = true;
+                    changelyrics.RdoRomaCV.IsChecked = true;
                     break;
                 case Lyric.LyricType.Romaji_Renzoku:
-                    changelyrics.radioButton_from2.IsChecked = true;
+                    changelyrics.RdoRomaVCV.IsChecked = true;
                     break;
                 case Lyric.LyricType.Kana_Tandoku:
-                    changelyrics.radioButton_from3.IsChecked = true;
+                    changelyrics.RdoKanaCV.IsChecked = true;
                     break;
                 case Lyric.LyricType.Kana_Renzoku:
-                    changelyrics.radioButton_from4.IsChecked = true;
+                    changelyrics.RdoKanaVCV.IsChecked = true;
                     break;
                 default:
                     break;
             }
-            changelyrics.radioButton_to3.IsChecked = true;
+            changelyrics.Rdo2KanaCV.IsChecked = true;
             switch (toFormat)
             {
                 case UtaFormat.Vsq4:
-                    changelyrics.radioButton_to2.Visibility = Visibility.Hidden;
-                    changelyrics.radioButton_to4.Visibility = Visibility.Hidden;
-                    changelyrics.radioButton_to3.Margin = changelyrics.radioButton_to2.Margin;
+                    changelyrics.Rdo2RomaVCV.Visibility = Visibility.Hidden;
+                    changelyrics.Rdo2KanaVCV.Visibility = Visibility.Hidden;
+                    changelyrics.Rdo2KanaCV.Margin = changelyrics.Rdo2RomaVCV.Margin;
                     break;
                 case UtaFormat.Ccs:
-                    changelyrics.radioButton_to1.Visibility = Visibility.Hidden;
-                    changelyrics.radioButton_to2.Visibility = Visibility.Hidden;
-                    changelyrics.radioButton_to4.Visibility = Visibility.Hidden;
-                    changelyrics.radioButton_to3.Margin = changelyrics.radioButton_to1.Margin;
+                    changelyrics.Rdo2RomaCV.Visibility = Visibility.Hidden;
+                    changelyrics.Rdo2RomaVCV.Visibility = Visibility.Hidden;
+                    changelyrics.Rdo2KanaVCV.Visibility = Visibility.Hidden;
+                    changelyrics.Rdo2KanaCV.Margin = changelyrics.Rdo2RomaCV.Margin;
                     break;
                 default:
                     break;
