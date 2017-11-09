@@ -428,6 +428,14 @@ namespace UtaFormatix
             Lyric = new Lyric(this, true);
             return true;
         }
+
+        private static void Test()
+        {
+            var d = new Data();
+            d.ImportCcs(new List<string>() {Path.GetFullPath("‪C:\\Users\\admin\\Desktop\\tsugai-v4-U.ccs") });
+
+        }
+
         public bool ImportCcs(List<string> filenames)
         {
             if (filenames.Count <= 0)
@@ -494,7 +502,8 @@ namespace UtaFormatix
                         TrackName = (from g in groups.Descendants()
                                      where g.Attribute("Id").Value == unit.Attribute("Group").Value
                                      select g.Attribute("Name").Value).FirstOrDefault(),
-                        NoteList = new List<Note>()
+                        NoteList = new List<Note>(),
+                        SingerId = unit.Attribute("CastId")?.Value
                     };
 
                     int noteNum = 0;
@@ -693,12 +702,10 @@ namespace UtaFormatix
                     }
 
                     part.FirstChild("playTime").Value = time.ToString();
-                    emptyTrack.AddAfterSelf(newTrack);
-                    emptyTrack = newTrack;
+                    emptyTrack.AddBeforeSelf(newTrack);
                     var newUnit = new XElement(emptyUnit);
                     newUnit.FirstChild("tNo").Value = (tracknum).ToString();
-                    emptyUnit.AddAfterSelf(newUnit);
-                    emptyUnit = newUnit;
+                    emptyUnit.AddBeforeSelf(newUnit);
                 }
                 toBeRemovedTrack?.Remove();
                 toBeRemovedUnit?.Remove();
@@ -770,10 +777,15 @@ namespace UtaFormatix
                 var guid = Guid.NewGuid().ToString("D");
                 //guids[track] = guid;
                 //while (idList.Count <= tracknum) //原文真是蜜汁GUID构造法...
-                emptyUnit.Attribute("Group").Value = guid;
-                emptyGroup.Attribute("Id").Value = guid;
-                emptyGroup.Attribute("Name").Value = track.TrackName;
-                var song = emptyUnit.FirstChild("Song");
+                newUnit.Attribute("Group").Value = guid;
+                if (!string.IsNullOrWhiteSpace(track.SingerId))
+                {
+                    newUnit.Attribute("CastId").Value = track.SingerId;
+                }
+                
+                newGroup.Attribute("Id").Value = guid;
+                newGroup.Attribute("Name").Value = track.TrackName;
+                var song = newUnit.FirstChild("Song");
                 var tempo = song.FirstChild("Tempo");
                 var beat = song.FirstChild("Beat");
                 var score = song.FirstChild("Score");
@@ -803,11 +815,9 @@ namespace UtaFormatix
                     posSecond += (int)((lastTick - posTick) / 8.0 / (0.01 * (TempoList[TempoList.Count - 1].BpmTimes100)) + 1);
                 }
                 TimeSpan timespan = new TimeSpan(0, 0, posSecond);
-                emptyUnit.Attribute("Duration").Value = timespan.ToString("c");
+                newUnit.Attribute("Duration").Value = timespan.ToString("c");
                 units.Add(newUnit);
                 groups.Add(newGroup);
-                emptyUnit = newUnit;
-                emptyGroup = newGroup;
             }
             toBeRemovedUnit.Remove();
             toBeRemovedGroup.Remove();
