@@ -431,9 +431,6 @@ namespace UtaFormatix
 
         private static void Test()
         {
-            var d = new Data();
-            d.ImportCcs(new List<string>() {Path.GetFullPath("‪C:\\Users\\admin\\Desktop\\tsugai-v4-U.ccs") });
-
         }
 
         public bool ImportCcs(List<string> filenames)
@@ -782,7 +779,7 @@ namespace UtaFormatix
                 {
                     newUnit.Attribute("CastId").Value = track.SingerId;
                 }
-                
+
                 newGroup.Attribute("Id").Value = guid;
                 newGroup.Attribute("Name").Value = track.TrackName;
                 var song = newUnit.FirstChild("Song");
