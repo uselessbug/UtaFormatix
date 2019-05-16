@@ -2,6 +2,8 @@
 
 **UtaFormatix** is a tool for converting vocal-synthesizer's project format among VOCALOID, UTAU and CeVIO, created by @Sdercolin . Here is a modified version of UtaFormatix - **UtaFormatEx**. There are no new features, just more cleaner different code style and implementation (in order to be used in some modern environments).
 
+[**UtaFormatOL**](https://github.com/VOICeVIO/UtaFormatOL) is an online version of UtaFormatEx which you can use on any OS with a modern (WebAssembly enabled) browser.  
+
 ## Feature
 Format:
 
