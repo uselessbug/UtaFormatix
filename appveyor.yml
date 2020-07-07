@@ -1,7 +1,7 @@
 version: 0.0.{build}
 image: Visual Studio 2017
 configuration:
-- Release
+- Debug
 platform: Any CPU
 before_build:
 - cmd: nuget restore -verbosity quiet
