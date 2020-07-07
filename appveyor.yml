@@ -8,6 +8,6 @@ before_build:
 build_script:
 - cmd: msbuild UtaFormatEx.sln /p:Configuration=Release /verbosity:quiet
 artifacts:
-- path: UtaFormatEx\bin\Release
+- path: UtaFormat\bin\Release
   name: UtaFormatEx
   type: exe
